@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "ui.h": "c",
+    "ui_events.h": "c"
+  }
+}
