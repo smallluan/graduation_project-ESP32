@@ -5,8 +5,8 @@
 ⚠️ **此项目将持续被更新到毕业。**
 
 如果感兴趣，请为我的其他开源项目点一颗 star 🌟:
-[基于 DQN 算法的纸牌游戏 ai](https://github.com/smallluan/graduation_project-DQN)
-[UrPage 适用于小程序的开源组件库](https://github.com/smallluan/UrPage-Components)
+1. [基于 DQN 算法的纸牌游戏 ai](https://github.com/smallluan/graduation_project-DQN)
+2. [UrPage 适用于小程序的开源组件库](https://github.com/smallluan/UrPage-Components)
 
 有任何建议请联系我：
 📧 `598051800@qq.com`
