@@ -5,6 +5,30 @@
 
 #include "../ui.h"
 
+const lv_img_dsc_t *card_images_1[] = {
+    &ui_img_card_9_png,
+    &ui_img_card_9_png,
+    &ui_img_card_7_png,
+    &ui_img_card_6_png,
+    &ui_img_card_5_png,
+    &ui_img_card_5_png,
+    &ui_img_card_4_png,
+    &ui_img_card_3_png,
+    &ui_img_card_1_png,
+    &ui_img_card_1_png,
+
+    &ui_img_card_9_png,
+    &ui_img_card_9_png,
+    &ui_img_card_7_png,
+    &ui_img_card_6_png,
+    &ui_img_card_5_png,
+    &ui_img_card_5_png,
+    &ui_img_card_4_png,
+    &ui_img_card_3_png,
+    &ui_img_card_1_png,
+    &ui_img_card_1_png,
+};
+
 
 // 初始化屏幕
 void ui_playPage1_screen_init(void)
@@ -13,26 +37,7 @@ void ui_playPage1_screen_init(void)
     lv_obj_clear_flag(ui_playPage1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_playPage1, 4, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    // 开始游戏按钮
-    ui_Start = lv_btn_create(ui_playPage1);
-    lv_obj_set_width(ui_Start, 160);
-    lv_obj_set_height(ui_Start, 60);
-    lv_obj_set_x(ui_Start, 0);  // 位于屏幕中心
-    lv_obj_set_y(ui_Start, 0);
-    lv_obj_set_align(ui_Start, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Start, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_Start, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_Label_start = lv_label_create(ui_playPage1);
-    lv_obj_set_width(ui_Label_start, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label_start, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Label_start, 0);
-    lv_obj_set_y(ui_Label_start, 0);
-    lv_obj_set_align(ui_Label_start, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label_start, "Start");
-    lv_obj_set_style_text_color(ui_Label_start, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label_start, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label_start, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    creat_start_button();
 
     ui_Image4 = lv_img_create(ui_playPage1);
     lv_img_set_src(ui_Image4, &ui_img_back_png);
@@ -86,107 +91,71 @@ void ui_playPage1_screen_init(void)
 // 卡牌初始化
 void card_init(void) 
 {
-
     // 销毁开始按钮
-    lv_obj_del(ui_Start)
+    clean_start_button();
+    init_p1_card(170);
+    init_p2_card(-120);
+}
 
-    ui_img_card_1 = lv_img_create(ui_playPage1);
-    lv_img_set_src(ui_img_card_1, &ui_img_card_1_png);
-    lv_obj_set_width(ui_img_card_1, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_img_card_1, LV_SIZE_CONTENT);    /// 32
-    lv_obj_set_x(ui_img_card_1, -360);
-    lv_obj_set_y(ui_img_card_1, 170);
-    lv_obj_set_align(ui_img_card_1, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_img_card_1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_img_card_1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+// 创建开始按钮
+void creat_start_button(void) {
+    ui_Start = lv_btn_create(ui_playPage1);
+    lv_obj_set_width(ui_Start, 160);
+    lv_obj_set_height(ui_Start, 60);
+    lv_obj_set_x(ui_Start, 0);  // 位于屏幕中心
+    lv_obj_set_y(ui_Start, 0);
+    lv_obj_set_align(ui_Start, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Start, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_Start, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_img_card_2 = lv_img_create(ui_playPage1);
-    lv_img_set_src(ui_img_card_2, &ui_img_card_2_png);
-    lv_obj_set_width(ui_img_card_2, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_img_card_2, LV_SIZE_CONTENT);    /// 32
-    lv_obj_set_x(ui_img_card_2, -280);
-    lv_obj_set_y(ui_img_card_2, 170);
-    lv_obj_set_align(ui_img_card_2, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_img_card_2, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_img_card_2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    ui_Label_start = lv_label_create(ui_playPage1);
+    lv_obj_set_width(ui_Label_start, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label_start, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label_start, 0);
+    lv_obj_set_y(ui_Label_start, 0);
+    lv_obj_set_align(ui_Label_start, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label_start, "Start");
+    lv_obj_set_style_text_color(ui_Label_start, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label_start, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label_start, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+}
 
-    ui_img_card_3 = lv_img_create(ui_playPage1);
-    lv_img_set_src(ui_img_card_3, &ui_img_card_3_png);
-    lv_obj_set_width(ui_img_card_3, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_img_card_3, LV_SIZE_CONTENT);    /// 32
-    lv_obj_set_x(ui_img_card_3, -200);
-    lv_obj_set_y(ui_img_card_3, 170);
-    lv_obj_set_align(ui_img_card_3, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_img_card_3, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_img_card_3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+// 销毁开始按钮
+void clean_start_button(void) {
+    lv_obj_clean(ui_Start);
+    lv_obj_clean(ui_Label_start);
+}
 
-    ui_img_card_4 = lv_img_create(ui_playPage1);
-    lv_img_set_src(ui_img_card_4, &ui_img_card_4_png);
-    lv_obj_set_width(ui_img_card_4, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_img_card_4, LV_SIZE_CONTENT);    /// 32
-    lv_obj_set_x(ui_img_card_4, -120);
-    lv_obj_set_y(ui_img_card_4, 170);
-    lv_obj_set_align(ui_img_card_4, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_img_card_4, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_img_card_4, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+// 初始化 p1 的卡牌
+void init_p1_card(int y)
+{
 
-    ui_img_card_5 = lv_img_create(ui_playPage1);
-    lv_img_set_src(ui_img_card_5, &ui_img_card_5_png);
-    lv_obj_set_width(ui_img_card_5, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_img_card_5, LV_SIZE_CONTENT);    /// 32
-    lv_obj_set_x(ui_img_card_5, -40);
-    lv_obj_set_y(ui_img_card_5, 170);
-    lv_obj_set_align(ui_img_card_5, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_img_card_5, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_img_card_5, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    for (int i = 0; i < 10; i++) {
+        p1_cards[i] = lv_img_create(ui_playPage1);
+        lv_img_set_src(p1_cards[i], card_images_1[i]);
+        lv_obj_set_width(p1_cards[i], LV_SIZE_CONTENT);
+        lv_obj_set_height(p1_cards[i], LV_SIZE_CONTENT);
+        lv_obj_set_x(p1_cards[i], -360 + i * 80);
+        lv_obj_set_y(p1_cards[i], y);
+        lv_obj_set_align(p1_cards[i], LV_ALIGN_CENTER);
+        lv_obj_add_flag(p1_cards[i], LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);
+        lv_obj_clear_flag(p1_cards[i], LV_OBJ_FLAG_SCROLLABLE);
+    }
+}
 
-    ui_img_card_6 = lv_img_create(ui_playPage1);
-    lv_img_set_src(ui_img_card_6, &ui_img_card_6_png);
-    lv_obj_set_width(ui_img_card_6, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_img_card_6, LV_SIZE_CONTENT);    /// 32
-    lv_obj_set_x(ui_img_card_6, 40);
-    lv_obj_set_y(ui_img_card_6, 170);
-    lv_obj_set_align(ui_img_card_6, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_img_card_6, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_img_card_6, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+// 初始化 p2 的卡牌
+void init_p2_card(int y)
+{
 
-    ui_img_card_7 = lv_img_create(ui_playPage1);
-    lv_img_set_src(ui_img_card_7, &ui_img_card_7_png);
-    lv_obj_set_width(ui_img_card_7, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_img_card_7, LV_SIZE_CONTENT);    /// 32
-    lv_obj_set_x(ui_img_card_7, 120);
-    lv_obj_set_y(ui_img_card_7, 170);
-    lv_obj_set_align(ui_img_card_7, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_img_card_7, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_img_card_7, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_img_card_8 = lv_img_create(ui_playPage1);
-    lv_img_set_src(ui_img_card_8, &ui_img_card_8_png);
-    lv_obj_set_width(ui_img_card_8, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_img_card_8, LV_SIZE_CONTENT);    /// 32
-    lv_obj_set_x(ui_img_card_8, 200);
-    lv_obj_set_y(ui_img_card_8, 170);
-    lv_obj_set_align(ui_img_card_8, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_img_card_8, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_img_card_8, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_img_card_9 = lv_img_create(ui_playPage1);
-    lv_img_set_src(ui_img_card_9, &ui_img_card_9_png);
-    lv_obj_set_width(ui_img_card_9, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_img_card_9, LV_SIZE_CONTENT);    /// 32
-    lv_obj_set_x(ui_img_card_9, 280);
-    lv_obj_set_y(ui_img_card_9, 170);
-    lv_obj_set_align(ui_img_card_9, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_img_card_9, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_img_card_9, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    
-    ui_img_card_1 = lv_img_create(ui_playPage1);
-    lv_img_set_src(ui_img_card_1, &ui_img_card_1_png);
-    lv_obj_set_width(ui_img_card_1, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_img_card_1, LV_SIZE_CONTENT);    /// 32
-    lv_obj_set_x(ui_img_card_1, 360);
-    lv_obj_set_y(ui_img_card_1, 170);
-    lv_obj_set_align(ui_img_card_1, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_img_card_1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_img_card_1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    for (int i = 0; i < 10; i++) {
+        p2_cards[i] = lv_img_create(ui_playPage1);
+        lv_img_set_src(p2_cards[i], card_images_1[i + 10]);
+        lv_obj_set_width(p2_cards[i], LV_SIZE_CONTENT);
+        lv_obj_set_height(p2_cards[i], LV_SIZE_CONTENT);
+        lv_obj_set_x(p2_cards[i], -360 + i * 80);
+        lv_obj_set_y(p2_cards[i], y);
+        lv_obj_set_align(p2_cards[i], LV_ALIGN_CENTER);
+        lv_obj_add_flag(p2_cards[i], LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);
+        lv_obj_clear_flag(p2_cards[i], LV_OBJ_FLAG_SCROLLABLE);
+    }
 }

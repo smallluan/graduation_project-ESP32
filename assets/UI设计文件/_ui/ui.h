@@ -61,15 +61,8 @@ extern lv_obj_t * ui_Image7;
 extern lv_obj_t * ui_Image5;
 extern lv_obj_t * ui_Image23;
 extern lv_obj_t * ui_Image26;
-extern lv_obj_t * ui_img_card_1;
-extern lv_obj_t * ui_img_card_2;
-extern lv_obj_t * ui_img_card_3;
-extern lv_obj_t * ui_img_card_4;
-extern lv_obj_t * ui_img_card_5;
-extern lv_obj_t * ui_img_card_6;
-extern lv_obj_t * ui_img_card_7;
-extern lv_obj_t * ui_img_card_8;
-extern lv_obj_t * ui_img_card_9;
+extern lv_obj_t * p1_cards[10];
+extern lv_obj_t * p2_cards[10];
 // CUSTOM VARIABLES
 
 // SCREEN: ui_playPage2

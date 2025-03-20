@@ -3957,8 +3957,8 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  -274,
-                  178
+                  -350,
+                  -121
                 ],
                 "InheritedType": 7
               },
@@ -5963,7 +5963,7 @@
     "uiExportFolderPath": "D:\\HuaweiMoveData\\Users\\admin\\Desktop\\UI设计文件\\ui",
     "projectExportFolderPath": "",
     "custom_variable_prefix": "uic",
-    "backup_cnt": 678,
+    "backup_cnt": 704,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.11",
     "callfuncsexport": "C_FILE",

@@ -56,16 +56,8 @@ lv_obj_t * ui_Image7;
 lv_obj_t * ui_Image5;
 lv_obj_t * ui_Image23;
 lv_obj_t * ui_Image26;
-lv_obj_t * ui_img_card_1;
-lv_obj_t * ui_img_card_2;
-lv_obj_t * ui_img_card_3;
-lv_obj_t * ui_img_card_4;
-lv_obj_t * ui_img_card_5;
-lv_obj_t * ui_img_card_6;
-lv_obj_t * ui_img_card_7;
-lv_obj_t * ui_img_card_8;
-lv_obj_t * ui_img_card_9;
-// CUSTOM VARIABLES
+lv_obj_t * p1_cards[10];
+lv_obj_t * p2_cards[10];
 
 
 // SCREEN: ui_playPage2
