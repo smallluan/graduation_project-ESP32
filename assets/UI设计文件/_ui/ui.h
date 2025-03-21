@@ -63,6 +63,7 @@ extern lv_obj_t * ui_Image23;
 extern lv_obj_t * ui_Image26;
 extern lv_obj_t * p1_cards[10];
 extern lv_obj_t * p2_cards[10];
+extern lv_obj_t * curr_player_label;
 // CUSTOM VARIABLES
 
 // SCREEN: ui_playPage2

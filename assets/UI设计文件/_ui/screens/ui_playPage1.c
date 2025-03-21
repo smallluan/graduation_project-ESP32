@@ -5,112 +5,133 @@
 
 #include "../ui.h"
 
-const lv_img_dsc_t *card_images_1[] = {
-    &ui_img_card_9_png,
-    &ui_img_card_9_png,
-    &ui_img_card_7_png,
-    &ui_img_card_6_png,
-    &ui_img_card_5_png,
-    &ui_img_card_5_png,
-    &ui_img_card_4_png,
-    &ui_img_card_3_png,
-    &ui_img_card_1_png,
-    &ui_img_card_1_png,
+typedef struct
+{
+    const lv_img_dsc_t *url;
+    int val;
+} cardObj;
 
-    &ui_img_card_9_png,
-    &ui_img_card_9_png,
-    &ui_img_card_7_png,
-    &ui_img_card_6_png,
-    &ui_img_card_5_png,
-    &ui_img_card_5_png,
-    &ui_img_card_4_png,
-    &ui_img_card_3_png,
-    &ui_img_card_1_png,
-    &ui_img_card_1_png,
-};
+// 声明 pendding_cards_p1 和 p1
+#define MAX_PENDING_CARDS 10
+lv_obj_t *pendding_cards_p1[MAX_PENDING_CARDS];
+int pendding_card_count_p1 = 0;
+lv_obj_t *pendding_cards_p2[MAX_PENDING_CARDS];
+int pendding_card_count_p2 = 0;
 
+// 提前声明函数
+void p1_card_select(lv_event_t *e);
+void p2_card_select(lv_event_t *e);
+void set_curr_player(int player);
+void set_op_panel(void);
+
+cardObj card_images_1[] = {
+    {&ui_img_card_9_png, 9},
+    {&ui_img_card_9_png, 9},
+    {&ui_img_card_7_png, 7},
+    {&ui_img_card_6_png, 6},
+    {&ui_img_card_5_png, 5},
+    {&ui_img_card_5_png, 5},
+    {&ui_img_card_4_png, 4},
+    {&ui_img_card_3_png, 3},
+    {&ui_img_card_1_png, 1},
+    {&ui_img_card_1_png, 1},
+    {&ui_img_card_9_png, 9},
+    {&ui_img_card_8_png, 8},
+    {&ui_img_card_7_png, 7},
+    {&ui_img_card_6_png, 6},
+    {&ui_img_card_5_png, 5},
+    {&ui_img_card_5_png, 5},
+    {&ui_img_card_4_png, 4},
+    {&ui_img_card_3_png, 3},
+    {&ui_img_card_3_png, 3},
+    {&ui_img_card_2_png, 2}};
 
 // 初始化屏幕
 void ui_playPage1_screen_init(void)
 {
     ui_playPage1 = lv_obj_create(NULL);
-    lv_obj_clear_flag(ui_playPage1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_clear_flag(ui_playPage1, LV_OBJ_FLAG_SCROLLABLE); /// Flags
     lv_obj_set_style_radius(ui_playPage1, 4, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     creat_start_button();
 
     ui_Image4 = lv_img_create(ui_playPage1);
     lv_img_set_src(ui_Image4, &ui_img_back_png);
-    lv_obj_set_width(ui_Image4, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_Image4, LV_SIZE_CONTENT);    /// 32
+    lv_obj_set_width(ui_Image4, LV_SIZE_CONTENT);  /// 32
+    lv_obj_set_height(ui_Image4, LV_SIZE_CONTENT); /// 32
     lv_obj_set_x(ui_Image4, -371);
     lv_obj_set_y(ui_Image4, -203);
     lv_obj_set_align(ui_Image4, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image4, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image4, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_add_flag(ui_Image4, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST); /// Flags
+    lv_obj_clear_flag(ui_Image4, LV_OBJ_FLAG_SCROLLABLE);                        /// Flags
     lv_img_set_zoom(ui_Image4, 350);
 
     ui_Image6 = lv_img_create(ui_playPage1);
     lv_img_set_src(ui_Image6, &ui_img_loader_png);
-    lv_obj_set_width(ui_Image6, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_Image6, LV_SIZE_CONTENT);    /// 32
+    lv_obj_set_width(ui_Image6, LV_SIZE_CONTENT);  /// 32
+    lv_obj_set_height(ui_Image6, LV_SIZE_CONTENT); /// 32
     lv_obj_set_x(ui_Image6, 53);
     lv_obj_set_y(ui_Image6, -212);
     lv_obj_set_align(ui_Image6, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image6, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image6, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_add_flag(ui_Image6, LV_OBJ_FLAG_ADV_HITTEST);  /// Flags
+    lv_obj_clear_flag(ui_Image6, LV_OBJ_FLAG_SCROLLABLE); /// Flags
     lv_img_set_zoom(ui_Image6, 220);
 
     ui_Image7 = lv_img_create(ui_playPage1);
     lv_img_set_src(ui_Image7, &ui_img_famer_png);
-    lv_obj_set_width(ui_Image7, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_Image7, LV_SIZE_CONTENT);    /// 32
+    lv_obj_set_width(ui_Image7, LV_SIZE_CONTENT);  /// 32
+    lv_obj_set_height(ui_Image7, LV_SIZE_CONTENT); /// 32
     lv_obj_set_x(ui_Image7, -54);
     lv_obj_set_y(ui_Image7, -214);
     lv_obj_set_align(ui_Image7, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image7, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image7, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_add_flag(ui_Image7, LV_OBJ_FLAG_ADV_HITTEST);  /// Flags
+    lv_obj_clear_flag(ui_Image7, LV_OBJ_FLAG_SCROLLABLE); /// Flags
 
     ui_Image5 = lv_img_create(ui_playPage1);
     lv_img_set_src(ui_Image5, &ui_img_vs_png);
-    lv_obj_set_width(ui_Image5, LV_SIZE_CONTENT);   /// 32
-    lv_obj_set_height(ui_Image5, LV_SIZE_CONTENT);    /// 32
+    lv_obj_set_width(ui_Image5, LV_SIZE_CONTENT);  /// 32
+    lv_obj_set_height(ui_Image5, LV_SIZE_CONTENT); /// 32
     lv_obj_set_x(ui_Image5, -3);
     lv_obj_set_y(ui_Image5, -212);
     lv_obj_set_align(ui_Image5, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image5, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image5, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_add_flag(ui_Image5, LV_OBJ_FLAG_ADV_HITTEST);  /// Flags
+    lv_obj_clear_flag(ui_Image5, LV_OBJ_FLAG_SCROLLABLE); /// Flags
 
-    
     // 添加事件
     lv_obj_add_event_cb(ui_Image4, ui_event_Image4, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_Start, getStart, LV_EVENT_ALL, NULL);
-
 }
 
 // 卡牌初始化
-void card_init(void) 
+void card_init(void)
 {
     // 销毁开始按钮
     clean_start_button();
+    /*
+        在两幅牌中间区域添加
+        1. 当前玩家
+        2. 按钮：pass cancel confirm，
+        3. 上轮的玩家出牌
+    */
+    set_op_panel();
     init_p1_card(170);
     init_p2_card(-120);
 }
 
 // 创建开始按钮
-void creat_start_button(void) {
+void creat_start_button(void)
+{
     ui_Start = lv_btn_create(ui_playPage1);
     lv_obj_set_width(ui_Start, 160);
     lv_obj_set_height(ui_Start, 60);
-    lv_obj_set_x(ui_Start, 0);  // 位于屏幕中心
+    lv_obj_set_x(ui_Start, 0); // 位于屏幕中心
     lv_obj_set_y(ui_Start, 0);
     lv_obj_set_align(ui_Start, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Start, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_Start, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_add_flag(ui_Start, LV_OBJ_FLAG_SCROLL_ON_FOCUS); /// Flags
+    lv_obj_clear_flag(ui_Start, LV_OBJ_FLAG_SCROLLABLE);    /// Flags
 
     ui_Label_start = lv_label_create(ui_playPage1);
-    lv_obj_set_width(ui_Label_start, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label_start, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_width(ui_Label_start, LV_SIZE_CONTENT);  /// 1
+    lv_obj_set_height(ui_Label_start, LV_SIZE_CONTENT); /// 1
     lv_obj_set_x(ui_Label_start, 0);
     lv_obj_set_y(ui_Label_start, 0);
     lv_obj_set_align(ui_Label_start, LV_ALIGN_CENTER);
@@ -118,21 +139,25 @@ void creat_start_button(void) {
     lv_obj_set_style_text_color(ui_Label_start, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label_start, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label_start, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_add_event_cb(ui_Start, getStart, LV_EVENT_ALL, NULL);
 }
 
 // 销毁开始按钮
-void clean_start_button(void) {
-    lv_obj_clean(ui_Start);
-    lv_obj_clean(ui_Label_start);
+void clean_start_button(void)
+{
+    lv_obj_del(ui_Start);
+    lv_obj_del(ui_Label_start);
 }
 
 // 初始化 p1 的卡牌
 void init_p1_card(int y)
 {
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++)
+    {
         p1_cards[i] = lv_img_create(ui_playPage1);
-        lv_img_set_src(p1_cards[i], card_images_1[i]);
+        lv_img_set_src(p1_cards[i], card_images_1[i].url);
         lv_obj_set_width(p1_cards[i], LV_SIZE_CONTENT);
         lv_obj_set_height(p1_cards[i], LV_SIZE_CONTENT);
         lv_obj_set_x(p1_cards[i], -360 + i * 80);
@@ -140,6 +165,8 @@ void init_p1_card(int y)
         lv_obj_set_align(p1_cards[i], LV_ALIGN_CENTER);
         lv_obj_add_flag(p1_cards[i], LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);
         lv_obj_clear_flag(p1_cards[i], LV_OBJ_FLAG_SCROLLABLE);
+        // 为每个卡片添加点击事件
+        lv_obj_add_event_cb(p1_cards[i], p1_card_select, LV_EVENT_ALL, NULL);
     }
 }
 
@@ -147,9 +174,10 @@ void init_p1_card(int y)
 void init_p2_card(int y)
 {
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++)
+    {
         p2_cards[i] = lv_img_create(ui_playPage1);
-        lv_img_set_src(p2_cards[i], card_images_1[i + 10]);
+        lv_img_set_src(p2_cards[i], card_images_1[i + 10].url);
         lv_obj_set_width(p2_cards[i], LV_SIZE_CONTENT);
         lv_obj_set_height(p2_cards[i], LV_SIZE_CONTENT);
         lv_obj_set_x(p2_cards[i], -360 + i * 80);
@@ -157,5 +185,125 @@ void init_p2_card(int y)
         lv_obj_set_align(p2_cards[i], LV_ALIGN_CENTER);
         lv_obj_add_flag(p2_cards[i], LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);
         lv_obj_clear_flag(p2_cards[i], LV_OBJ_FLAG_SCROLLABLE);
+        // 为每个卡片添加点击事件
+        lv_obj_add_event_cb(p2_cards[i], p2_card_select, LV_EVENT_ALL, NULL);
+    }
+}
+
+// p1 选择卡片
+void p1_card_select(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        lv_obj_t *obj = lv_event_get_target(e);
+
+        // 检查卡片是否在 pendding_cards_p1 数组中
+        int found_index = -1;
+        for (int i = 0; i < pendding_card_count_p1; i++)
+        {
+            if (pendding_cards_p1[i] == obj)
+            {
+                found_index = i;
+                break;
+            }
+        }
+
+        if (found_index != -1)
+        {
+            // 卡片已在数组中，将其放回原来位置并从数组中移除
+            for (int i = found_index; i < pendding_card_count_p1 - 1; i++)
+            {
+                pendding_cards_p1[i] = pendding_cards_p1[i + 1];
+            }
+            pendding_card_count_p1--;
+            lv_obj_set_y(obj, 170);
+        }
+        else
+        {
+            lv_obj_set_y(obj, 150);
+            if (pendding_card_count_p1 < MAX_PENDING_CARDS)
+            {
+                pendding_cards_p1[pendding_card_count_p1++] = obj;
+            }
+        }
+    }
+}
+
+// p2 选择卡片
+void p2_card_select(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        lv_obj_t *obj = lv_event_get_target(e);
+
+        // 检查卡片是否在 pendding_cards_p2 数组中
+        int found_index = -1;
+        for (int i = 0; i < pendding_card_count_p2; i++)
+        {
+            if (pendding_cards_p2[i] == obj)
+            {
+                found_index = i;
+                break;
+            }
+        }
+
+        if (found_index != -1)
+        {
+            // 卡片已在数组中，将其放回原来位置并从数组中移除
+            for (int i = found_index; i < pendding_card_count_p2 - 1; i++)
+            {
+                pendding_cards_p2[i] = pendding_cards_p2[i + 1];
+            }
+            pendding_card_count_p2--;
+            lv_obj_set_y(obj, -120);
+        }
+        else
+        {
+            lv_obj_set_y(obj, -100);
+            if (pendding_card_count_p2 < MAX_PENDING_CARDS)
+            {
+                pendding_cards_p2[pendding_card_count_p2++] = obj;
+            }
+        }
+    }
+}
+
+// 创建中间的操作面板
+void set_op_panel(void)
+{
+    set_curr_player(0);
+}
+
+void set_curr_player(int player)
+{
+    if (player == 0)
+    {
+        curr_player_label = lv_label_create(ui_playPage1);
+        lv_obj_set_width(curr_player_label, LV_SIZE_CONTENT);
+        lv_obj_set_height(curr_player_label, LV_SIZE_CONTENT);
+        lv_obj_set_x(ui_Label_start, 0);
+        lv_obj_set_y(ui_Label_start, 25);
+        lv_obj_set_align(ui_Label_start, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_Label_start, "player 1");
+        lv_obj_set_style_text_color(ui_Label_start, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_Label_start, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_Label_start, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    }
+    else
+    {
+        curr_player_label = lv_label_create(ui_playPage1);
+        lv_obj_set_width(curr_player_label, LV_SIZE_CONTENT);
+        lv_obj_set_height(curr_player_label, LV_SIZE_CONTENT);
+        lv_obj_set_x(ui_Label_start, 0);
+        lv_obj_set_y(ui_Label_start, 25);
+        lv_obj_set_align(ui_Label_start, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_Label_start, "player 2");
+        lv_obj_set_style_text_color(ui_Label_start, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_Label_start, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_Label_start, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
     }
 }
