@@ -64,6 +64,12 @@ extern lv_obj_t * ui_Image26;
 extern lv_obj_t * p1_cards[10];
 extern lv_obj_t * p2_cards[10];
 extern lv_obj_t * curr_player_label;
+extern lv_obj_t * op_confirm_button;
+extern lv_obj_t * op_confirm_label;
+extern lv_obj_t * op_cancel_button;
+extern lv_obj_t * op_cancel_label;
+extern lv_obj_t * op_pass_button;
+extern lv_obj_t * op_pass_label;
 // CUSTOM VARIABLES
 
 // SCREEN: ui_playPage2

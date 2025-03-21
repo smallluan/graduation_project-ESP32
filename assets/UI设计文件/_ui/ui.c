@@ -59,7 +59,12 @@ lv_obj_t * ui_Image26;
 lv_obj_t * p1_cards[10];
 lv_obj_t * p2_cards[10];
 lv_obj_t * curr_player_label;
-
+lv_obj_t * op_confirm_button;
+lv_obj_t * op_confirm_label;
+lv_obj_t * op_cancel_button;
+lv_obj_t * op_cancel_label;
+lv_obj_t * op_pass_button;
+lv_obj_t * op_pass_label;
 
 // SCREEN: ui_playPage2
 void ui_playPage2_screen_init(void);

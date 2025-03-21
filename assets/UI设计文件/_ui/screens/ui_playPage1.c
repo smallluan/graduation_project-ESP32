@@ -13,6 +13,9 @@ typedef struct
 
 // 声明 pendding_cards_p1 和 p1
 #define MAX_PENDING_CARDS 10
+#define DEFAULT_COLOR lv_color_hex(0x000000)  // 表示使用默认主题
+#define WHITE_COLOR lv_color_hex(0xFFFFFF)
+#define RED_COLOR lv_color_hex(0xFF0000)
 lv_obj_t *pendding_cards_p1[MAX_PENDING_CARDS];
 int pendding_card_count_p1 = 0;
 lv_obj_t *pendding_cards_p2[MAX_PENDING_CARDS];
@@ -23,6 +26,8 @@ void p1_card_select(lv_event_t *e);
 void p2_card_select(lv_event_t *e);
 void set_curr_player(int player);
 void set_op_panel(void);
+void set_op_button(void);
+void set_button(lv_obj_t **target, lv_obj_t **label, int x, int y, const char *text[10], lv_color_t bg_color, lv_color_t text_color);
 
 cardObj card_images_1[] = {
     {&ui_img_card_9_png, 9},
@@ -275,35 +280,42 @@ void p2_card_select(lv_event_t *e)
 // 创建中间的操作面板
 void set_op_panel(void)
 {
-    set_curr_player(0);
+    set_op_button();
 }
 
-void set_curr_player(int player)
-{
-    if (player == 0)
-    {
-        curr_player_label = lv_label_create(ui_playPage1);
-        lv_obj_set_width(curr_player_label, LV_SIZE_CONTENT);
-        lv_obj_set_height(curr_player_label, LV_SIZE_CONTENT);
-        lv_obj_set_x(ui_Label_start, 0);
-        lv_obj_set_y(ui_Label_start, 25);
-        lv_obj_set_align(ui_Label_start, LV_ALIGN_CENTER);
-        lv_label_set_text(ui_Label_start, "player 1");
-        lv_obj_set_style_text_color(ui_Label_start, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_text_opa(ui_Label_start, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_text_font(ui_Label_start, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+void set_op_button(void) {
+    if (op_confirm_button) lv_obj_del(op_confirm_button);
+    if (op_cancel_button) lv_obj_del(op_cancel_button);
+    if (op_pass_button) lv_obj_del(op_pass_button);
+    set_button(&op_confirm_button, &op_confirm_label, 160, 25, "confirm", DEFAULT_COLOR, WHITE_COLOR);    
+    set_button(&op_cancel_button, &op_cancel_label, 0, 25, "cancel", WHITE_COLOR, RED_COLOR);       
+    set_button(&op_pass_button, &op_pass_label, -160, 25, "pass", RED_COLOR, WHITE_COLOR);     
+}
+
+void set_button(lv_obj_t **target, lv_obj_t **label, int x, int y, const char *text[10], lv_color_t bg_color, lv_color_t text_color) {
+    
+    *target = lv_btn_create(ui_playPage1);
+    lv_obj_set_width(*target, 100);
+    lv_obj_set_height(*target, 50);
+    lv_obj_set_x(*target, x); 
+    lv_obj_set_y(*target, y);
+    lv_obj_set_align(*target, LV_ALIGN_CENTER);
+    lv_obj_add_flag(*target, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+    lv_obj_clear_flag(*target, LV_OBJ_FLAG_SCROLLABLE);   
+    // 设置按钮背景色（仅当非默认颜色时）
+    if(bg_color.full != 0) {  // 0表示使用默认主题色
+        lv_obj_set_style_bg_color(*target, bg_color, LV_PART_MAIN | LV_STATE_DEFAULT);
     }
-    else
-    {
-        curr_player_label = lv_label_create(ui_playPage1);
-        lv_obj_set_width(curr_player_label, LV_SIZE_CONTENT);
-        lv_obj_set_height(curr_player_label, LV_SIZE_CONTENT);
-        lv_obj_set_x(ui_Label_start, 0);
-        lv_obj_set_y(ui_Label_start, 25);
-        lv_obj_set_align(ui_Label_start, LV_ALIGN_CENTER);
-        lv_label_set_text(ui_Label_start, "player 2");
-        lv_obj_set_style_text_color(ui_Label_start, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_text_opa(ui_Label_start, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_text_font(ui_Label_start, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
-    }
+
+
+    *label = lv_label_create(ui_playPage1);
+    lv_obj_set_width(*label, LV_SIZE_CONTENT);  
+    lv_obj_set_height(*label, LV_SIZE_CONTENT); 
+    lv_obj_set_x(*label, x);
+    lv_obj_set_y(*label, y);
+    lv_obj_set_align(*label, LV_ALIGN_CENTER);
+    lv_label_set_text(*label, text);
+    lv_obj_set_style_text_color(*label, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(*label, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(*label, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 }
