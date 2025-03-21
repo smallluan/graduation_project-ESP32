@@ -7,49 +7,57 @@
 
 typedef struct
 {
+    int id;
     const lv_img_dsc_t *url;
     int val;
+    int owner;
 } cardObj;
 
 // 声明 pendding_cards_p1 和 p1
 #define MAX_PENDING_CARDS 10
-#define DEFAULT_COLOR lv_color_hex(0x000000)  // 表示使用默认主题
+#define DEFAULT_COLOR lv_color_hex(0x000000) // 表示使用默认主题
 #define WHITE_COLOR lv_color_hex(0xFFFFFF)
 #define RED_COLOR lv_color_hex(0xFF0000)
 lv_obj_t *pendding_cards_p1[MAX_PENDING_CARDS];
 int pendding_card_count_p1 = 0;
 lv_obj_t *pendding_cards_p2[MAX_PENDING_CARDS];
 int pendding_card_count_p2 = 0;
+int curr_player = 0; // 0 -> player1, 1 -> player2
 
 // 提前声明函数
 void p1_card_select(lv_event_t *e);
 void p2_card_select(lv_event_t *e);
-void set_curr_player(int player);
+void set_curr_player();
 void set_op_panel(void);
 void set_op_button(void);
-void set_button(lv_obj_t **target, lv_obj_t **label, int x, int y, const char *text[10], lv_color_t bg_color, lv_color_t text_color);
+void set_button(lv_obj_t **target, lv_obj_t **label, int x, int y, const char *text, lv_color_t bg_color, lv_color_t text_color, lv_event_cb_t function);
+void confirm(void);
+void cancel(void);
+void pass(void);
+void confirm_p1_cards(void);
+void confirm_p2_cards(void);
 
 cardObj card_images_1[] = {
-    {&ui_img_card_9_png, 9},
-    {&ui_img_card_9_png, 9},
-    {&ui_img_card_7_png, 7},
-    {&ui_img_card_6_png, 6},
-    {&ui_img_card_5_png, 5},
-    {&ui_img_card_5_png, 5},
-    {&ui_img_card_4_png, 4},
-    {&ui_img_card_3_png, 3},
-    {&ui_img_card_1_png, 1},
-    {&ui_img_card_1_png, 1},
-    {&ui_img_card_9_png, 9},
-    {&ui_img_card_8_png, 8},
-    {&ui_img_card_7_png, 7},
-    {&ui_img_card_6_png, 6},
-    {&ui_img_card_5_png, 5},
-    {&ui_img_card_5_png, 5},
-    {&ui_img_card_4_png, 4},
-    {&ui_img_card_3_png, 3},
-    {&ui_img_card_3_png, 3},
-    {&ui_img_card_2_png, 2}};
+    {0, &ui_img_card_9_png, 9, 0},
+    {1, &ui_img_card_9_png, 9, 0},
+    {2, &ui_img_card_7_png, 7, 0},
+    {3, &ui_img_card_6_png, 6, 0},
+    {4, &ui_img_card_5_png, 5, 0},
+    {5, &ui_img_card_5_png, 5, 0},
+    {6, &ui_img_card_4_png, 4, 0},
+    {7, &ui_img_card_3_png, 3, 0},
+    {8, &ui_img_card_1_png, 1, 0},
+    {9, &ui_img_card_1_png, 1, 0},
+    {10, &ui_img_card_9_png, 9, 1},
+    {11, &ui_img_card_8_png, 8, 1},
+    {12, &ui_img_card_7_png, 7, 1},
+    {13, &ui_img_card_6_png, 6, 1},
+    {14, &ui_img_card_5_png, 5, 1},
+    {15, &ui_img_card_5_png, 5, 1},
+    {16, &ui_img_card_4_png, 4, 1},
+    {17, &ui_img_card_3_png, 3, 1},
+    {18, &ui_img_card_3_png, 3, 1},
+    {19, &ui_img_card_2_png, 2, 1}};
 
 // 初始化屏幕
 void ui_playPage1_screen_init(void)
@@ -158,11 +166,11 @@ void clean_start_button(void)
 // 初始化 p1 的卡牌
 void init_p1_card(int y)
 {
-
     for (int i = 0; i < 10; i++)
     {
         p1_cards[i] = lv_img_create(ui_playPage1);
         lv_img_set_src(p1_cards[i], card_images_1[i].url);
+        lv_obj_set_user_data(p1_cards[i], &card_images_1[i]); // 设置用户数据
         lv_obj_set_width(p1_cards[i], LV_SIZE_CONTENT);
         lv_obj_set_height(p1_cards[i], LV_SIZE_CONTENT);
         lv_obj_set_x(p1_cards[i], -360 + i * 80);
@@ -178,11 +186,11 @@ void init_p1_card(int y)
 // 初始化 p2 的卡牌
 void init_p2_card(int y)
 {
-
     for (int i = 0; i < 10; i++)
     {
         p2_cards[i] = lv_img_create(ui_playPage1);
         lv_img_set_src(p2_cards[i], card_images_1[i + 10].url);
+        lv_obj_set_user_data(p2_cards[i], &card_images_1[i + 10]); // 修正用户数据设置
         lv_obj_set_width(p2_cards[i], LV_SIZE_CONTENT);
         lv_obj_set_height(p2_cards[i], LV_SIZE_CONTENT);
         lv_obj_set_x(p2_cards[i], -360 + i * 80);
@@ -200,7 +208,7 @@ void p1_card_select(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if (event_code == LV_EVENT_CLICKED)
+    if (event_code == LV_EVENT_CLICKED && curr_player == 0)
     {
         lv_obj_t *obj = lv_event_get_target(e);
 
@@ -241,7 +249,7 @@ void p2_card_select(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if (event_code == LV_EVENT_CLICKED)
+    if (event_code == LV_EVENT_CLICKED && curr_player == 1)
     {
         lv_obj_t *obj = lv_event_get_target(e);
 
@@ -283,39 +291,207 @@ void set_op_panel(void)
     set_op_button();
 }
 
-void set_op_button(void) {
-    if (op_confirm_button) lv_obj_del(op_confirm_button);
-    if (op_cancel_button) lv_obj_del(op_cancel_button);
-    if (op_pass_button) lv_obj_del(op_pass_button);
-    set_button(&op_confirm_button, &op_confirm_label, 160, 25, "confirm", DEFAULT_COLOR, WHITE_COLOR);    
-    set_button(&op_cancel_button, &op_cancel_label, 0, 25, "cancel", WHITE_COLOR, RED_COLOR);       
-    set_button(&op_pass_button, &op_pass_label, -160, 25, "pass", RED_COLOR, WHITE_COLOR);     
+void set_op_button(void)
+{
+    if (op_confirm_button)
+        lv_obj_del(op_confirm_button);
+    if (op_cancel_button)
+        lv_obj_del(op_cancel_button);
+    if (op_pass_button)
+        lv_obj_del(op_pass_button);
+    set_button(&op_confirm_button, &op_confirm_label, 160, 25, "confirm", DEFAULT_COLOR, WHITE_COLOR, confirm);
+    set_button(&op_cancel_button, &op_cancel_label, 0, 25, "cancel", WHITE_COLOR, RED_COLOR, cancel);
+    set_button(&op_pass_button, &op_pass_label, -160, 25, "pass", RED_COLOR, WHITE_COLOR, pass);
 }
 
-void set_button(lv_obj_t **target, lv_obj_t **label, int x, int y, const char *text[10], lv_color_t bg_color, lv_color_t text_color) {
-    
+// 假设 ui_playPage1 已经被正确定义
+// 改进后的 set_button 函数
+void set_button(lv_obj_t **target, lv_obj_t **label, int x, int y, const char *text, lv_color_t bg_color, lv_color_t text_color, lv_event_cb_t function)
+{
     *target = lv_btn_create(ui_playPage1);
     lv_obj_set_width(*target, 100);
     lv_obj_set_height(*target, 50);
-    lv_obj_set_x(*target, x); 
+    lv_obj_set_x(*target, x);
     lv_obj_set_y(*target, y);
     lv_obj_set_align(*target, LV_ALIGN_CENTER);
     lv_obj_add_flag(*target, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
-    lv_obj_clear_flag(*target, LV_OBJ_FLAG_SCROLLABLE);   
+    lv_obj_clear_flag(*target, LV_OBJ_FLAG_SCROLLABLE);
     // 设置按钮背景色（仅当非默认颜色时）
-    if(bg_color.full != 0) {  // 0表示使用默认主题色
+    if (bg_color.full != 0)
+    { // 0表示使用默认主题色
         lv_obj_set_style_bg_color(*target, bg_color, LV_PART_MAIN | LV_STATE_DEFAULT);
     }
 
-
     *label = lv_label_create(ui_playPage1);
-    lv_obj_set_width(*label, LV_SIZE_CONTENT);  
-    lv_obj_set_height(*label, LV_SIZE_CONTENT); 
+    lv_obj_set_width(*label, LV_SIZE_CONTENT);
+    lv_obj_set_height(*label, LV_SIZE_CONTENT);
     lv_obj_set_x(*label, x);
     lv_obj_set_y(*label, y);
     lv_obj_set_align(*label, LV_ALIGN_CENTER);
     lv_label_set_text(*label, text);
-    lv_obj_set_style_text_color(*label, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(*label, text_color, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(*label, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(*label, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    if (function != NULL)
+    {
+        lv_obj_add_event_cb(*target, function, LV_EVENT_ALL, NULL);
+    }
+}
+
+// 设置当前玩家
+void set_curr_player()
+{
+    curr_player = curr_player == 0 ? 1 : 0;
+}
+
+// 按下 confirm 按钮
+void confirm()
+{
+    // 1. 判断出牌是否合法
+    // 2. 将牌打出，放在上回合出牌中
+    // 3. 重新组织牌的排列
+    // 4. 反转按钮
+    if (curr_player == 0)
+    {
+        // 玩家一回合
+        confirm_p1_cards();
+    }
+    else
+    {
+        // 玩家二回合
+        confirm_p2_cards();
+    }
+    set_curr_player();
+}
+
+// 按下 cancel 按钮
+void cancel()
+{
+    // 根据当前玩家处理对应的待处理卡牌数组
+    if (curr_player == 0)
+    {
+        // 处理玩家一的待处理卡牌
+        for (int i = 0; i < pendding_card_count_p1; i++)
+        {
+            lv_obj_t *card = pendding_cards_p1[i];
+            if (card)
+            {
+                // 恢复卡牌的 y 坐标为原始位置
+                lv_obj_set_y(card, 170);
+            }
+        }
+        // 清空待处理数组和计数器
+        pendding_card_count_p1 = 0;
+    }
+    else
+    {
+        // 处理玩家二的待处理卡牌
+        for (int i = 0; i < pendding_card_count_p2; i++)
+        {
+            lv_obj_t *card = pendding_cards_p2[i];
+            if (card)
+            {
+                // 恢复卡牌的 y 坐标为原始位置
+                lv_obj_set_y(card, -120);
+            }
+        }
+        // 清空待处理数组和计数器
+        pendding_card_count_p2 = 0;
+    }
+}
+
+// 按下 pass 按钮
+void pass()
+{
+    cancel();
+    set_curr_player();
+}
+
+// 处理玩家一确认操作的函数
+void confirm_p1_cards()
+{
+    int i = 0;
+    while (i < pendding_card_count_p1)
+    {
+        lv_obj_t *card = pendding_cards_p1[i];
+        if (!card) { i++; continue; }
+
+        cardObj *obj = (cardObj *)lv_obj_get_user_data(card);
+        if (obj)
+        {
+            obj->owner = -1; // 标记为已使用
+
+            // 从p1_cards数组中移除
+            for (int j = 0; j < 10; j++)
+            {
+                if (p1_cards[j] == card)
+                {
+                    p1_cards[j] = NULL;
+                    break;
+                }
+            }
+            lv_obj_del(card); // 删除屏幕上的卡牌
+            pendding_cards_p1[i] = NULL; // 置空指针
+        }
+        i++;
+    }
+    pendding_card_count_p1 = 0; // 清空计数器
+    memset(pendding_cards_p1, 0, sizeof(pendding_cards_p1)); // 清空数组
+
+    // 重新排列剩余卡牌
+    int x = -360;
+    int current_pos = 0;
+    for (int j = 0; j < 10; j++)
+    {
+        if (p1_cards[j] != NULL)
+        {
+            lv_obj_set_x(p1_cards[j], x + current_pos * 80);
+            current_pos++;
+        }
+    }
+}
+
+// 处理玩家二确认操作的函数
+void confirm_p2_cards()
+{
+    int i = 0;
+    while (i < pendding_card_count_p2)
+    {
+        lv_obj_t *card = pendding_cards_p2[i];
+        if (!card) { i++; continue; }
+
+        cardObj *obj = (cardObj *)lv_obj_get_user_data(card);
+        if (obj)
+        {
+            obj->owner = -1; // 标记为已使用
+
+            // 从p2_cards数组中移除
+            for (int j = 0; j < 10; j++)
+            {
+                if (p2_cards[j] == card)
+                {
+                    p2_cards[j] = NULL;
+                    break;
+                }
+            }
+            lv_obj_del(card); // 删除屏幕上的卡牌
+            pendding_cards_p2[i] = NULL; // 置空指针
+        }
+        i++;
+    }
+    pendding_card_count_p2 = 0; // 清空计数器
+    memset(pendding_cards_p2, 0, sizeof(pendding_cards_p2)); // 清空数组
+
+    // 重新排列剩余卡牌
+    int x = -360;
+    int current_pos = 0;
+    for (int j = 0; j < 10; j++)
+    {
+        if (p2_cards[j] != NULL)
+        {
+            lv_obj_set_x(p2_cards[j], x + current_pos * 80);
+            current_pos++;
+        }
+    }
 }
