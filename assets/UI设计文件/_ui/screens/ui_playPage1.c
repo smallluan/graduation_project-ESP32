@@ -22,12 +22,13 @@ lv_obj_t *pendding_cards_p1[MAX_PENDING_CARDS];
 int pendding_card_count_p1 = 0;
 lv_obj_t *pendding_cards_p2[MAX_PENDING_CARDS];
 int pendding_card_count_p2 = 0;
-int curr_player = 0; // 0 -> player1, 1 -> player2
+int curr_player = 1; // 0 -> player1, 1 -> player2, 这里是 1 因为最开始需要调用一次 set_curr_player
 
 // 提前声明函数
+void card_init(void);
 void p1_card_select(lv_event_t *e);
 void p2_card_select(lv_event_t *e);
-void set_curr_player();
+void set_curr_player(void);
 void set_op_panel(void);
 void set_op_button(void);
 void set_button(lv_obj_t **target, lv_obj_t **label, int x, int y, const char *text, lv_color_t bg_color, lv_color_t text_color, lv_event_cb_t function);
@@ -153,7 +154,7 @@ void creat_start_button(void)
     lv_obj_set_style_text_opa(ui_Label_start, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label_start, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_add_event_cb(ui_Start, getStart, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_Start, getStart, LV_EVENT_CLICKED, NULL);
 }
 
 // 销毁开始按钮
@@ -179,7 +180,7 @@ void init_p1_card(int y)
         lv_obj_add_flag(p1_cards[i], LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);
         lv_obj_clear_flag(p1_cards[i], LV_OBJ_FLAG_SCROLLABLE);
         // 为每个卡片添加点击事件
-        lv_obj_add_event_cb(p1_cards[i], p1_card_select, LV_EVENT_ALL, NULL);
+        lv_obj_add_event_cb(p1_cards[i], p1_card_select, LV_EVENT_CLICKED, NULL);
     }
 }
 
@@ -199,7 +200,7 @@ void init_p2_card(int y)
         lv_obj_add_flag(p2_cards[i], LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);
         lv_obj_clear_flag(p2_cards[i], LV_OBJ_FLAG_SCROLLABLE);
         // 为每个卡片添加点击事件
-        lv_obj_add_event_cb(p2_cards[i], p2_card_select, LV_EVENT_ALL, NULL);
+        lv_obj_add_event_cb(p2_cards[i], p2_card_select, LV_EVENT_CLICKED, NULL);
     }
 }
 
@@ -289,6 +290,7 @@ void p2_card_select(lv_event_t *e)
 void set_op_panel(void)
 {
     set_op_button();
+    set_curr_player();
 }
 
 void set_op_button(void)
@@ -304,7 +306,6 @@ void set_op_button(void)
     set_button(&op_pass_button, &op_pass_label, -160, 25, "pass", RED_COLOR, WHITE_COLOR, pass);
 }
 
-// 假设 ui_playPage1 已经被正确定义
 // 改进后的 set_button 函数
 void set_button(lv_obj_t **target, lv_obj_t **label, int x, int y, const char *text, lv_color_t bg_color, lv_color_t text_color, lv_event_cb_t function)
 {
@@ -335,18 +336,34 @@ void set_button(lv_obj_t **target, lv_obj_t **label, int x, int y, const char *t
 
     if (function != NULL)
     {
-        lv_obj_add_event_cb(*target, function, LV_EVENT_ALL, NULL);
+        lv_obj_add_event_cb(*target, function, LV_EVENT_CLICKED, NULL);
     }
 }
 
 // 设置当前玩家
-void set_curr_player()
+void set_curr_player(void)
 {
-    curr_player = curr_player == 0 ? 1 : 0;
+    curr_player = (curr_player == 0) ? 1 : 0;
+
+    if (curr_player_label == NULL) {
+        // 如果标签不存在，创建新的标签
+        curr_player_label = lv_label_create(ui_playPage1);
+        lv_obj_set_width(curr_player_label, LV_SIZE_CONTENT);
+        lv_obj_set_height(curr_player_label, LV_SIZE_CONTENT);
+        lv_obj_set_x(curr_player_label, -340);
+        lv_obj_set_y(curr_player_label, 25);
+        lv_obj_set_align(curr_player_label, LV_ALIGN_CENTER);
+        lv_obj_set_style_text_font(curr_player_label, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    }
+
+    // 更新标签文本
+    lv_label_set_text(curr_player_label, (curr_player == 0) ? "player_1" : "player_2");
+    // 手动触发界面更新事件，确保出牌权流转的显示更新
+    lv_obj_invalidate(ui_playPage1);
 }
 
 // 按下 confirm 按钮
-void confirm()
+void confirm(void)
 {
     // 1. 判断出牌是否合法
     // 2. 将牌打出，放在上回合出牌中
@@ -366,7 +383,7 @@ void confirm()
 }
 
 // 按下 cancel 按钮
-void cancel()
+void cancel(void)
 {
     // 根据当前玩家处理对应的待处理卡牌数组
     if (curr_player == 0)
@@ -402,14 +419,14 @@ void cancel()
 }
 
 // 按下 pass 按钮
-void pass()
+void pass(void)
 {
     cancel();
     set_curr_player();
 }
 
 // 处理玩家一确认操作的函数
-void confirm_p1_cards()
+void confirm_p1_cards(void)
 {
     int i = 0;
     while (i < pendding_card_count_p1)
@@ -453,7 +470,7 @@ void confirm_p1_cards()
 }
 
 // 处理玩家二确认操作的函数
-void confirm_p2_cards()
+void confirm_p2_cards(void)
 {
     int i = 0;
     while (i < pendding_card_count_p2)
