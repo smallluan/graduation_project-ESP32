@@ -10,6 +10,14 @@ void ui_home_screen_init(void)
     ui_home = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_home, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
+    // 添加背景图
+    lv_obj_t *ui_background = lv_img_create(ui_home);
+    lv_img_set_src(ui_background, &ui_img_home_png);
+    lv_obj_set_width(ui_background, LV_PCT(100));            // 宽度 100% 父对象
+    lv_obj_set_height(ui_background, LV_PCT(100));           // 高度 100% 父对象
+    lv_obj_align(ui_background, LV_ALIGN_CENTER, 0, 0);      // 居中对齐
+    lv_obj_clear_flag(ui_background, LV_OBJ_FLAG_SCROLLABLE); // 禁用滚动
+
     ui_buttonPvP = lv_btn_create(ui_home);
     lv_obj_set_width(ui_buttonPvP, 180);
     lv_obj_set_height(ui_buttonPvP, 60);

@@ -67,6 +67,14 @@ void ui_playPage1_screen_init(void)
     lv_obj_clear_flag(ui_playPage1, LV_OBJ_FLAG_SCROLLABLE); /// Flags
     lv_obj_set_style_radius(ui_playPage1, 4, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    // 添加背景图
+    lv_obj_t *ui_background = lv_img_create(ui_playPage1);
+    lv_img_set_src(ui_background, &ui_img_play_bg_png);
+    lv_obj_set_width(ui_background, LV_PCT(100));            // 宽度 100% 父对象
+    lv_obj_set_height(ui_background, LV_PCT(100));           // 高度 100% 父对象
+    lv_obj_align(ui_background, LV_ALIGN_CENTER, 0, 0);      // 居中对齐
+    lv_obj_clear_flag(ui_background, LV_OBJ_FLAG_SCROLLABLE); // 禁用滚动
+
     creat_start_button();
 
     ui_Image4 = lv_img_create(ui_playPage1);
@@ -353,7 +361,7 @@ void set_curr_player(void)
         lv_obj_set_x(curr_player_label, -340);
         lv_obj_set_y(curr_player_label, 25);
         lv_obj_set_align(curr_player_label, LV_ALIGN_CENTER);
-        lv_obj_set_style_text_font(curr_player_label, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(curr_player_label, lv_color_hex(0xFFFFFF),, LV_PART_MAIN | LV_STATE_DEFAULT);
     }
 
     // 更新标签文本

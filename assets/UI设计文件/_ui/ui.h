@@ -88,6 +88,8 @@ extern lv_obj_t * ui_Image11;
 extern lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
+LV_IMG_DECLARE(ui_img_home_png);
+LV_IMG_DECLARE(ui_img_play_bg_png);
 LV_IMG_DECLARE(ui_img_home_2v2_png);    // assets/home_2v2.png
 LV_IMG_DECLARE(ui_img_home_cpu_png);    // assets/home_cpu.png
 LV_IMG_DECLARE(ui_img_settings_png);    // assets/settings.png

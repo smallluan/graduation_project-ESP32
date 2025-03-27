@@ -2214,7 +2214,8 @@
                 "InheritedType": 11
               }
             ],
-            "saved_objtypeKey": "IMAGE"
+            "saved_objtypeKey": "IMAGE",
+            "tree_closed": true
           },
           {
             "guid": "GUID41076410-510585S21361461",
@@ -6179,7 +6180,7 @@
     "uiExportFolderPath": "D:\\HuaweiMoveData\\Users\\admin\\Desktop\\UI设计文件\\ui",
     "projectExportFolderPath": "",
     "custom_variable_prefix": "uic",
-    "backup_cnt": 1227,
+    "backup_cnt": 1235,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.11",
     "callfuncsexport": "C_FILE",
