@@ -59,6 +59,7 @@ lv_obj_t * ui_Image26;
 lv_obj_t * p1_cards[10];
 lv_obj_t * p2_cards[10];
 lv_obj_t * curr_player_label;
+lv_obj_t * prev_card_label;
 lv_obj_t * op_confirm_button;
 lv_obj_t * op_confirm_label;
 lv_obj_t * op_cancel_button;

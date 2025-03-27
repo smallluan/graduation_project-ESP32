@@ -23,6 +23,7 @@ int pendding_card_count_p1 = 0;
 lv_obj_t *pendding_cards_p2[MAX_PENDING_CARDS];
 int pendding_card_count_p2 = 0;
 int curr_player = 1; // 0 -> player1, 1 -> player2, 这里是 1 因为最开始需要调用一次 set_curr_player
+char prevCardStr[10] = "";
 
 // 提前声明函数
 void card_init(void);
@@ -31,6 +32,7 @@ void p2_card_select(lv_event_t *e);
 void set_curr_player(void);
 void set_op_panel(void);
 void set_op_button(void);
+void set_prev_card(void);
 void set_button(lv_obj_t **target, lv_obj_t **label, int x, int y, const char *text, lv_color_t bg_color, lv_color_t text_color, lv_event_cb_t function);
 void confirm(void);
 void cancel(void);
@@ -70,9 +72,9 @@ void ui_playPage1_screen_init(void)
     // 添加背景图
     lv_obj_t *ui_background = lv_img_create(ui_playPage1);
     lv_img_set_src(ui_background, &ui_img_play_bg_png);
-    lv_obj_set_width(ui_background, LV_PCT(100));            // 宽度 100% 父对象
-    lv_obj_set_height(ui_background, LV_PCT(100));           // 高度 100% 父对象
-    lv_obj_align(ui_background, LV_ALIGN_CENTER, 0, 0);      // 居中对齐
+    lv_obj_set_width(ui_background, LV_PCT(100));             // 宽度 100% 父对象
+    lv_obj_set_height(ui_background, LV_PCT(100));            // 高度 100% 父对象
+    lv_obj_align(ui_background, LV_ALIGN_CENTER, 0, 0);       // 居中对齐
     lv_obj_clear_flag(ui_background, LV_OBJ_FLAG_SCROLLABLE); // 禁用滚动
 
     creat_start_button();
@@ -299,8 +301,29 @@ void set_op_panel(void)
 {
     set_op_button();
     set_curr_player();
+    set_prev_card();
 }
 
+// 设置之前出牌
+void set_prev_card(void) 
+{
+    if (prev_card_label == NULL)
+    {
+        // 如果标签不存在，创建新的标签
+        prev_card_label = lv_label_create(prev_card_label);
+        lv_obj_set_width(prev_card_label, LV_SIZE_CONTENT);
+        lv_obj_set_height(prev_card_label, LV_SIZE_CONTENT);
+        lv_obj_set_x(prev_card_label, 340);
+        lv_obj_set_y(prev_card_label, 25);
+        lv_obj_set_align(prev_card_label, LV_ALIGN_CENTER);
+        lv_obj_set_style_text_color(prev_card_label, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    }
+
+    // 更新标签文本
+    lv_label_set_text(prev_card_label, prevCardStr);
+}
+
+// 设置操作按钮
 void set_op_button(void)
 {
     if (op_confirm_button)
@@ -314,7 +337,7 @@ void set_op_button(void)
     set_button(&op_pass_button, &op_pass_label, -160, 25, "pass", RED_COLOR, WHITE_COLOR, pass);
 }
 
-// 改进后的 set_button 函数
+// set_button 函数
 void set_button(lv_obj_t **target, lv_obj_t **label, int x, int y, const char *text, lv_color_t bg_color, lv_color_t text_color, lv_event_cb_t function)
 {
     *target = lv_btn_create(ui_playPage1);
@@ -353,7 +376,8 @@ void set_curr_player(void)
 {
     curr_player = (curr_player == 0) ? 1 : 0;
 
-    if (curr_player_label == NULL) {
+    if (curr_player_label == NULL)
+    {
         // 如果标签不存在，创建新的标签
         curr_player_label = lv_label_create(ui_playPage1);
         lv_obj_set_width(curr_player_label, LV_SIZE_CONTENT);
@@ -361,32 +385,106 @@ void set_curr_player(void)
         lv_obj_set_x(curr_player_label, -340);
         lv_obj_set_y(curr_player_label, 25);
         lv_obj_set_align(curr_player_label, LV_ALIGN_CENTER);
-        lv_obj_set_style_text_font(curr_player_label, lv_color_hex(0xFFFFFF),, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_color(curr_player_label, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     }
 
     // 更新标签文本
     lv_label_set_text(curr_player_label, (curr_player == 0) ? "player_1" : "player_2");
-    // 手动触发界面更新事件，确保出牌权流转的显示更新
-    lv_obj_invalidate(ui_playPage1);
 }
 
 // 按下 confirm 按钮
 void confirm(void)
 {
-    // 1. 判断出牌是否合法
-    // 2. 将牌打出，放在上回合出牌中
-    // 3. 重新组织牌的排列
-    // 4. 反转按钮
+    int total;
+    lv_obj_t **pendding_cards;
     if (curr_player == 0)
     {
-        // 玩家一回合
+        total = pendding_card_count_p1;
+        pendding_cards = pendding_cards_p1;
+    }
+    else
+    {
+        total = pendding_card_count_p2;
+        pendding_cards = pendding_cards_p2;
+    }
+
+    // 统计各牌值的数量
+    int count[20] = {0};
+    for (int i = 0; i < total; i++)
+    {
+        cardObj *obj = (cardObj *)lv_obj_get_user_data(pendding_cards[i]);
+        count[obj->val]++;
+    }
+
+    // 验证牌型
+    bool valid = false;
+    memset(prevCardStr, 0, sizeof(prevCardStr)); // 清空之前的内容
+
+    if (total == 1)
+    { // 单张
+        for (int i = 1; i <= 19; i++)
+        {
+            if (count[i] == 1)
+            {
+                sprintf(prevCardStr, "%d", i);
+                valid = true;
+                break;
+            }
+        }
+    }
+    else if (total == 2)
+    { // 对子
+        for (int i = 1; i <= 19; i++)
+        {
+            if (count[i] == 2)
+            {
+                sprintf(prevCardStr, "%d%d", i, i);
+                valid = true;
+                break;
+            }
+        }
+    }
+    else if (total == 4)
+    { // 三带一
+        int triple = -1, single = -1;
+        for (int i = 1; i <= 19; i++)
+        {
+            if (count[i] == 3)
+            {
+                triple = i;
+            }
+            else if (count[i] == 1)
+            {
+                single = i;
+            }
+            else if (count[i] != 0)
+            { // 存在非法数量
+                break;
+            }
+        }
+        if (triple != -1 && single != -1)
+        {
+            sprintf(prevCardStr, "%d%d%d%d", triple, triple, triple, single);
+            valid = true;
+        }
+    }
+
+    if (!valid)
+    {
+        cancel();
+        return;
+    }
+
+    // 执行确认操作
+    if (curr_player == 0)
+    {
         confirm_p1_cards();
     }
     else
     {
-        // 玩家二回合
         confirm_p2_cards();
     }
+    set_prev_card();
     set_curr_player();
 }
 
@@ -396,32 +494,18 @@ void cancel(void)
     // 根据当前玩家处理对应的待处理卡牌数组
     if (curr_player == 0)
     {
-        // 处理玩家一的待处理卡牌
         for (int i = 0; i < pendding_card_count_p1; i++)
         {
-            lv_obj_t *card = pendding_cards_p1[i];
-            if (card)
-            {
-                // 恢复卡牌的 y 坐标为原始位置
-                lv_obj_set_y(card, 170);
-            }
+            lv_obj_set_y(pendding_cards_p1[i], 170);
         }
-        // 清空待处理数组和计数器
         pendding_card_count_p1 = 0;
     }
     else
     {
-        // 处理玩家二的待处理卡牌
         for (int i = 0; i < pendding_card_count_p2; i++)
         {
-            lv_obj_t *card = pendding_cards_p2[i];
-            if (card)
-            {
-                // 恢复卡牌的 y 坐标为原始位置
-                lv_obj_set_y(card, -120);
-            }
+            lv_obj_set_y(pendding_cards_p2[i], -120);
         }
-        // 清空待处理数组和计数器
         pendding_card_count_p2 = 0;
     }
 }
@@ -430,6 +514,7 @@ void cancel(void)
 void pass(void)
 {
     cancel();
+    memset(prevCardStr, 0, sizeof(prevCardStr));
     set_curr_player();
 }
 
@@ -440,7 +525,11 @@ void confirm_p1_cards(void)
     while (i < pendding_card_count_p1)
     {
         lv_obj_t *card = pendding_cards_p1[i];
-        if (!card) { i++; continue; }
+        if (!card)
+        {
+            i++;
+            continue;
+        }
 
         cardObj *obj = (cardObj *)lv_obj_get_user_data(card);
         if (obj)
@@ -456,12 +545,12 @@ void confirm_p1_cards(void)
                     break;
                 }
             }
-            lv_obj_del(card); // 删除屏幕上的卡牌
+            lv_obj_del(card);            // 删除屏幕上的卡牌
             pendding_cards_p1[i] = NULL; // 置空指针
         }
         i++;
     }
-    pendding_card_count_p1 = 0; // 清空计数器
+    pendding_card_count_p1 = 0;                              // 清空计数器
     memset(pendding_cards_p1, 0, sizeof(pendding_cards_p1)); // 清空数组
 
     // 重新排列剩余卡牌
@@ -484,7 +573,11 @@ void confirm_p2_cards(void)
     while (i < pendding_card_count_p2)
     {
         lv_obj_t *card = pendding_cards_p2[i];
-        if (!card) { i++; continue; }
+        if (!card)
+        {
+            i++;
+            continue;
+        }
 
         cardObj *obj = (cardObj *)lv_obj_get_user_data(card);
         if (obj)
@@ -500,12 +593,12 @@ void confirm_p2_cards(void)
                     break;
                 }
             }
-            lv_obj_del(card); // 删除屏幕上的卡牌
+            lv_obj_del(card);            // 删除屏幕上的卡牌
             pendding_cards_p2[i] = NULL; // 置空指针
         }
         i++;
     }
-    pendding_card_count_p2 = 0; // 清空计数器
+    pendding_card_count_p2 = 0;                              // 清空计数器
     memset(pendding_cards_p2, 0, sizeof(pendding_cards_p2)); // 清空数组
 
     // 重新排列剩余卡牌
