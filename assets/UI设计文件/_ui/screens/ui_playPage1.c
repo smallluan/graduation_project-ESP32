@@ -310,13 +310,14 @@ void set_prev_card(void)
     if (prev_card_label == NULL)
     {
         // 如果标签不存在，创建新的标签
-        prev_card_label = lv_label_create(prev_card_label);
+        prev_card_label = lv_label_create(ui_playPage1);
         lv_obj_set_width(prev_card_label, LV_SIZE_CONTENT);
         lv_obj_set_height(prev_card_label, LV_SIZE_CONTENT);
         lv_obj_set_x(prev_card_label, 340);
         lv_obj_set_y(prev_card_label, 25);
         lv_obj_set_align(prev_card_label, LV_ALIGN_CENTER);
         lv_obj_set_style_text_color(prev_card_label, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(prev_card_label, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
     }
 
     // 更新标签文本
@@ -386,6 +387,7 @@ void set_curr_player(void)
         lv_obj_set_y(curr_player_label, 25);
         lv_obj_set_align(curr_player_label, LV_ALIGN_CENTER);
         lv_obj_set_style_text_color(curr_player_label, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(curr_player_label, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
     }
 
     // 更新标签文本
