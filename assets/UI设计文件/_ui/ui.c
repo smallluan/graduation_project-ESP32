@@ -46,6 +46,7 @@ lv_obj_t * ui_settings;
 void ui_playPage1_screen_init(void);
 void card_init(void);
 lv_obj_t * ui_playPage1;
+lv_obj_t * endTag;
 void getStart(lv_event_t * e);
 lv_obj_t * ui_Start;
 lv_obj_t * ui_Label_start;
@@ -148,6 +149,10 @@ void getStart(lv_event_t * e)
     if(event_code == LV_EVENT_CLICKED) {
         card_init();
     }
+}
+
+void sendSerialData(char* data) {
+    printf(data);
 }
 
 ///////////////////// SCREENS ////////////////////

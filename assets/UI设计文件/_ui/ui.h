@@ -15,6 +15,8 @@ extern "C" {
 #include "ui_helpers.h"
 #include "ui_events.h"
 
+void sendSerialData(char * data);
+
 
 // SCREEN: ui_home
 void ui_home_screen_init(void);
@@ -51,6 +53,7 @@ extern lv_obj_t * ui_settings;
 void ui_playPage1_screen_init(void);
 void card_init(void);
 extern lv_obj_t * ui_playPage1;
+extern lv_obj_t * endTag;
 void getStart(lv_event_t * e);
 extern lv_obj_t * ui_Start;
 extern lv_obj_t * ui_Label_start;

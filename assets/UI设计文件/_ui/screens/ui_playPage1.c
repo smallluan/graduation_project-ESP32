@@ -24,6 +24,9 @@ lv_obj_t *pendding_cards_p2[MAX_PENDING_CARDS];
 int pendding_card_count_p2 = 0;
 int curr_player = 1; // 0 -> player1, 1 -> player2, 这里是 1 因为最开始需要调用一次 set_curr_player
 char prevCardStr[10] = "";
+bool is_first_turn = true; // 新增标志，用于判断是否是首次获得出牌权
+int prev_card_type = -1; // 新增变量，用于记录上一轮出牌的类型，0: 单张，1: 对子，2: 三带一
+int prev_card_value = -1; // 新增变量，用于记录上一轮出牌的值
 
 // 提前声明函数
 void card_init(void);
@@ -39,6 +42,7 @@ void cancel(void);
 void pass(void);
 void confirm_p1_cards(void);
 void confirm_p2_cards(void);
+bool is_valid_move(int player, int type, int value);
 
 cardObj card_images_1[] = {
     {0, &ui_img_card_9_png, 9, 0},
@@ -139,6 +143,7 @@ void card_init(void)
     set_op_panel();
     init_p1_card(170);
     init_p2_card(-120);
+    sendSerialData("get start!\n");
 }
 
 // 创建开始按钮
@@ -335,7 +340,9 @@ void set_op_button(void)
         lv_obj_del(op_pass_button);
     set_button(&op_confirm_button, &op_confirm_label, 160, 25, "confirm", DEFAULT_COLOR, WHITE_COLOR, confirm);
     set_button(&op_cancel_button, &op_cancel_label, 0, 25, "cancel", WHITE_COLOR, RED_COLOR, cancel);
-    set_button(&op_pass_button, &op_pass_label, -160, 25, "pass", RED_COLOR, WHITE_COLOR, pass);
+    if (!is_first_turn) {
+        set_button(&op_pass_button, &op_pass_label, -160, 25, "pass", RED_COLOR, WHITE_COLOR, pass);
+    }
 }
 
 // set_button 函数
@@ -376,6 +383,7 @@ void set_button(lv_obj_t **target, lv_obj_t **label, int x, int y, const char *t
 void set_curr_player(void)
 {
     curr_player = (curr_player == 0) ? 1 : 0;
+    is_first_turn = false; // 玩家切换后，不再是首次获得出牌权
 
     if (curr_player_label == NULL)
     {
@@ -392,6 +400,7 @@ void set_curr_player(void)
 
     // 更新标签文本
     lv_label_set_text(curr_player_label, (curr_player == 0) ? "player_1" : "player_2");
+    set_op_button(); // 更新操作按钮
 }
 
 // 按下 confirm 按钮
@@ -420,6 +429,8 @@ void confirm(void)
 
     // 验证牌型
     bool valid = false;
+    int current_card_type = -1;
+    int current_card_value = -1;
     memset(prevCardStr, 0, sizeof(prevCardStr)); // 清空之前的内容
 
     if (total == 1)
@@ -430,6 +441,8 @@ void confirm(void)
             {
                 sprintf(prevCardStr, "%d", i);
                 valid = true;
+                current_card_type = 0;
+                current_card_value = i;
                 break;
             }
         }
@@ -442,6 +455,8 @@ void confirm(void)
             {
                 sprintf(prevCardStr, "%d%d", i, i);
                 valid = true;
+                current_card_type = 1;
+                current_card_value = i;
                 break;
             }
         }
@@ -468,6 +483,8 @@ void confirm(void)
         {
             sprintf(prevCardStr, "%d%d%d%d", triple, triple, triple, single);
             valid = true;
+            current_card_type = 2;
+            current_card_value = triple;
         }
     }
 
@@ -476,6 +493,20 @@ void confirm(void)
         cancel();
         return;
     }
+
+    // 非首次获得出牌权时，检查牌型是否与上一轮相同，且牌值是否更大
+    if (!is_first_turn && prev_card_type != -1 && prev_card_type != current_card_type) {
+        cancel();
+        return;
+    }
+    if (!is_first_turn && prev_card_type != -1 && current_card_value <= prev_card_value) {
+        cancel();
+        return;
+    }
+
+    // 更新上一轮出牌类型和值
+    prev_card_type = current_card_type;
+    prev_card_value = current_card_value;
 
     // 执行确认操作
     if (curr_player == 0)
@@ -486,6 +517,7 @@ void confirm(void)
     {
         confirm_p2_cards();
     }
+    printf("prevCardStr: %s\n", prevCardStr);
     set_prev_card();
     set_curr_player();
 }
@@ -515,8 +547,15 @@ void cancel(void)
 // 按下 pass 按钮
 void pass(void)
 {
+    if (is_first_turn) {
+        return;
+    }
     cancel();
     memset(prevCardStr, 0, sizeof(prevCardStr));
+    set_prev_card(); 
+    prev_card_type = -1; // 对方获得出牌权，清空上一轮出牌类型
+    prev_card_value = -1; // 对方获得出牌权，清空上一轮出牌值
+    is_first_turn = true; // 对方获得出牌权，视为首次出牌
     set_curr_player();
 }
 
@@ -614,4 +653,18 @@ void confirm_p2_cards(void)
             current_pos++;
         }
     }
+}
+
+// 检查当前出牌是否为有效动作
+bool is_valid_move(int player, int type, int value) {
+    if (is_first_turn) {
+        return true;
+    }
+    if (type != prev_card_type) {
+        return false;
+    }
+    if (value <= prev_card_value) {
+        return false;
+    }
+    return true;
 }
